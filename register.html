@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      background: #007BFF;
+      color: white;
+      cursor: pointer;
+    }
+    a {
+      display: block;
+      margin-top: 10px;
+      color: #007BFF;
+      text-decoration: none;
+    }
+    #message {
+      margin-top: 10px;
+      color: red;
+    }
+    #password-rules {
+      text-align: left;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #333;
+    }
+    #password-rules ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    #password-rules li {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Register</h2>
+  <input type="email" id="email" placeholder="Email" style="width: 95%;" required>
+  <input type="password" id="password" placeholder="Password" style="width: 95%;" required>
+  <button onclick="register()">Register</button>
+  <a href="login.html">Already have an account? Login here</a>
+  <p id="message"></p>
+
+  <!-- Password requirements section -->
+  <div id="password-rules">
+    <h3>Password Requirements:</h3>
+    <ul>
+      <li>At least 12 characters long</li>
+      <li>Contains at least one uppercase letter (A-Z)</li>
+      <li>Contains at least one lowercase letter (a-z)</li>
+      <li>Contains at least one number (0-9)</li>
+      <li>Contains at least one special character (e.g. !, @, #, $, %, etc.)</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  function register() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    // Password validation med krav: minst 12 tecken, 1 liten, 1 stor, 1 siffra, 1 specialtecken
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{12,}$/;
+
+    if (!passwordRegex.test(password)) {
+      const message = document.getElementById('message');
+      message.innerText = 'Password does not meet the requirements.';
+      message.style.color = 'red';
+      return;
+    }
+
+    // Använd template literal med backticks för att interpolera variabler korrekt
+    const formBody = `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+
+    fetch('http://localhost:8080/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formBody
+    })
+            .then(response => response.text().then(text => ({ status: response.status, text })))
+            .then(({ status, text }) => {
+              const message = document.getElementById('message');
+              message.innerText = text;
+              message.style.color = status === 201 ? 'green' : 'red';
+
+              if (status === 201) {
+                setTimeout(() => {
+                  window.location.href = 'login.html';
+                }, 2000);
+              }
+            });
+  }
+</script>
+</body>
+</html>
